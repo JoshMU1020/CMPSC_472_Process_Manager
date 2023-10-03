@@ -16,6 +16,12 @@ Student Name: Joshua Murillo
 The purpose of this project is to design and implement an advanced Process Manager. The Project Manager will emphasize process synchronization and allow users to interact with the Project Manager through creating, management, and synchronization of a multithreaded environment. The Project Manager should provide these functions to a user via a command-line user interface that uses system calls for the processing and threading control. This projects includes the source code for the Project Manager and a Project report listed as the readme of this repository.
 
 
+## Technology Stack:
+
+
+## Implimentation Process:
+
+
 ## Implimented Features:
 ### 1. Process Creation:
 - Preocess Creation Mechanism that allows users to create new processes.
