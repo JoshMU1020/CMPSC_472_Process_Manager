@@ -6,6 +6,7 @@ import logging
 import psutil
 import random
 import queue
+import argparse
 
 
 class ProcessManager:
@@ -222,79 +223,46 @@ if __name__ == '__main__':
     with open('process_manager.log', 'w'):
         pass
 
-    manager = ProcessManager()
+    # Initialize the ArgumentParser
+    parser = argparse.ArgumentParser(description='Process Manager CLI')
 
+    # Define command-line arguments and their descriptions
+    parser.add_argument('--create', action='store_true', help='Create a new process')
+    parser.add_argument('--list', action='store_true', help='List running processes')
+    parser.add_argument('--terminate', type=int, help='Terminate a process by PID')
+    parser.add_argument('--threads', action='store_true', help='Manage threads')
+    parser.add_argument('--log', action='store_true', help='View log report')
+
+    # Parse the command-line arguments
+    args = parser.parse_args()
+
+    # Create a ProcessManager instance
+    manager = ProcessManager()
     new_process = manager.create_and_start_process(False)
 
-    while True:
-        time.sleep(1)
-        logging.info("Displaying Process Manager Menu...")
-        print("\nProcess Manager Menu:")
-        print("1. Create Process")
-        print("2. Manage Running Processes")
-        print("3. Manage Threads")
-        print("4. View Log Report")
-        print("5. Exit")
+    if args.create:
+        new_process = manager.create_and_start_process(False)
+        target_pid = new_process.pid
+        result = manager.get_process_info_by_pid(target_pid)
+        print(result)
 
-        choice = input("Enter your choice: ")
+    if args.list:
+        result = manager.process_management_list()
+        print("Registered Processes:")
+        for i in result:
+            print(i['PID'])
 
-        if choice == '1':
-            new_process = manager.create_and_start_process(False)
-            time.sleep(1)
-            target_pid = new_process.pid
-            result = manager.get_process_info_by_pid(target_pid)
-            print(result)
+    if args.terminate:
+        termination_result = manager.terminate_process(args.terminate)
+        print(termination_result)
 
-        elif choice == '2':
-            print("\nManagement Menu:")
-            print("1. List Running Processes")
-            print("2. View Process")
-            print("3. Terminate Process")
-            command = input("Enter your choice: ")
-            if command == '1':
-                target_pid = new_process.pid
-                result = manager.process_management_list()
-                print("Registered Processes:")
-                for i in result:
-                    print(i['PID'])
-            elif command == '2':
-                p = int(input("Enter PID of process to view: "))
-                result = manager.process_management_list()
-                print("\n--------------------------------")
-                print("Viewing Information on process: ", p)
-                process_exists = False  # Flag to check if the process exists
-                for i in result:
-                    if i['PID'] == p:
-                        process_exists = True
-                        print("PID:", i['PID'], "Parent PID:", i['Parent PID'], "Status:", i['Status'])
-                if not process_exists:
-                    print(f"Process with PID {p} does not exist.")
-            elif command == '3':
-                p = int(input("Enter PID of process to Terminate: "))
-                result = manager.process_management_list()
-                for i in result:
-                    if i['PID'] == p:
-                        if input("Terminate the process? (y/n): ").lower() == "y":
-                            termination_result = manager.terminate_process(i['PID'])
-                            print(termination_result)
+    if args.threads:
+        thread_choice = input("Enter your choice for thread management (1 for synchronization, 2 for IPC Operations): ")
+        if thread_choice == '1':
+            manager.create_and_start_process(True)  # Call the synchronization method
+        elif thread_choice == '2':
+            manager.ipc_operations()  # Call the IPC operations method
 
-        elif choice == '3':
-            # Implement thread management menu
-            print("\nThread Management Menu:")
-            print("1. Synchronize Threads")
-            print("2. IPC Operations")
-            thread_choice = input("Enter your choice: ")
-            if thread_choice == '1':
-                manager.create_and_start_process(True)  # Call the synchronization method
-            elif thread_choice == '2':
-                manager.ipc_operations()  # Call the IPC operations method
-
-        elif choice == '4':
-            manager.display_log_contents('process_manager.log')
-
-        elif choice == '5':
-            manager.terminate_all()
-            exit()
-
-        else:
-            print("Invalid choice. Please try again.")
+    if args.log:
+        manager.display_log_contents('process_manager.log')
+        
