@@ -3,14 +3,16 @@ import threading
 import multiprocessing
 import time
 import logging
+import psutil
 import random
 import queue
 import argparse
-import psutil
+import subprocess
 
 
 class ProcessManager:
     def __init__(self):
+        self.processes = []
         self.process_pids = []
         self.threads = []
 
@@ -25,49 +27,53 @@ class ProcessManager:
         self.data = threading.Semaphore(0)
         self.total_items = 0
 
-    def worker_function(self):
-        logging.info(f"Worker process PID: {os.getpid()}")
-        work_time = random.randint(1, 5) * 10
-        time.sleep(work_time)  # Simulate some work
+    def worker_function(self, interp):
+        if interp is not None:
+            logging.info(f"Worker process PID: {os.getpid()}")
+            duration = 60
+            process = subprocess.Popen([interp, "sleep.py", str(duration)], stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+        else:
+            time.sleep(5)
+            logging.info(f"Worker process PID: {os.getpid()}")
+            return
         return
-
-    """def thread_worker_function(self):
-        logging.info(f"Worker thread PID: {threading.current_thread().ident}")
-        time.sleep(5)
-        return"""
 
     def create_and_start_process(self, uses_t):
         logging.info("Creating new process...")
-        self.total_items = random.randint(2, 5) * 4  # Randomly generate number of data items
-        if uses_t:
-            new_process_instance = multiprocessing.Process(target=self.synchronize_threads)
+        self.total_items = random.randint(2, 5) * 4  # Randomly generate the number of data items
+
+        interp_path = "/usr/bin/python3"
+        ans = input("Do you wish to run the standard file [y/n]: ")
+        if ans.lower() == 'y':
+            pass
+        elif ans.lower() == 'n':
+            ans = input("Do you wish to run the another file [y/n]: ")
+            if ans.lower() == 'y':
+                interp_path = str(input("Enter path to .py file you wish to run: "))
+            else:
+                interp_path = None
+
+        if not uses_t:
+            new_process_instance = multiprocessing.Process(target=self.worker_function, args=(interp_path,))
         else:
-            new_process_instance = multiprocessing.Process(target=self.worker_function)
-        process_pid = new_process_instance.pid
+            new_process_instance = multiprocessing.Process(target=self.synchronize_threads)
 
         new_process_instance.start()
-        self.process_pids.append(new_process_instance)
+
+        # Get the process PID before starting it
+        process_pid = new_process_instance.pid
+        print("\nPID IS:", process_pid)
+        print("NEW PROCESS:", new_process_instance)
+
+        self.process_pids.append(process_pid)
+        print(self.process_pids)
+        self.processes.append(new_process_instance)
+
         logging.info(f"Process created with PID: {process_pid}")
 
         self.queue.put(f"Data from Process {process_pid}")  # Add data to the IPC queue
-
-        """self.synchronize_threads()
-        sleep_time = random.randint(2, 5) * 4  # Random multiple of 5 between 5 and 60
-        num_threads = int(sleep_time / 10)
-        self.create_and_start_thread(num_threads)"""
-
         return new_process_instance
-
-    '''def create_and_start_thread(self, num_threads):
-        threads = []
-        for _ in range(num_threads):
-            thread = threading.Thread(target=self.thread_worker_function)
-            thread.start()
-            threads.append(thread)
-
-        for thread in threads:
-            thread.join()
-        return'''
 
     def get_process_info_by_pid(self, target_pidi):
         try:
@@ -85,7 +91,7 @@ class ProcessManager:
     def process_management_list(self):
         logging.info(f"Process list of ran/running processes.")
         process_info_list = []
-        for p_id in self.process_pids:
+        for p_id in self.processes:
             try:
                 process = psutil.Process(p_id.pid)
                 process_info = {
@@ -215,54 +221,115 @@ class ProcessManager:
         except FileNotFoundError:
             print(f"Log file '{log_file}' not found.")
 
+    # Save process PIDs to a file
+    def save_process_pids(self, filename, process_pids):
+        with open(filename, 'w') as file:
+            for pid in process_pids:
+                file.write(f"{pid}\n")
+
+    # Load process PIDs from a file
+    def load_process_pids(self, filename):
+        try:
+            with open(filename, 'r') as file:
+                return [int(line.strip()) for line in file]
+        except FileNotFoundError:
+            return []
+
 
 if __name__ == '__main__':
-    # Your existing code for the menu
+    manager = ProcessManager()
+
     logging.basicConfig(filename='process_manager.log', level=logging.INFO, format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
+
     with open('process_manager.log', 'w'):
         pass
 
     # Initialize the ArgumentParser
     parser = argparse.ArgumentParser(description='Process Manager CLI')
-
     # Define command-line arguments and their descriptions
-    parser.add_argument('--create', action='store_true', help='Create a new process')
-    parser.add_argument('--list', action='store_true', help='List running processes')
-    parser.add_argument('--terminate', type=int, help='Terminate a process by PID')
-    parser.add_argument('--threads', action='store_true', help='Manage threads')
+    parser.add_argument('--begin', action='store_true', help='Begin instance of Process Manager')
     parser.add_argument('--log', action='store_true', help='View log report')
+    parser.add_argument('--exit', action='store_true', help='End program')
 
     # Parse the command-line arguments
     args = parser.parse_args()
 
-    # Create a ProcessManager instance
-    manager = ProcessManager()
-    new_process = manager.create_and_start_process(False)
+    print("\nEnter your command in the form of 'python Process_Manager.py --begin'\n")
 
-    if args.create:
-        new_process = manager.create_and_start_process(False)
-        target_pid = new_process.pid
-        result = manager.get_process_info_by_pid(target_pid)
-        print(result)
+    if args.begin:
+        while True:
+            time.sleep(1)
+            logging.info("Displaying Process Manager Menu...")
+            print("\n Process Manager Menu:")
+            print("Command List : Operation")
+            print("------------------------")
+            print("1) create       : Create a new process")
+            print("2) manage       : Manage created processes")
+            print("3) threads      : Manage threads")
+            print("4) log          : View log report")
+            print("5) exit         : End program")
 
-    if args.list:
-        result = manager.process_management_list()
-        print("Registered Processes:")
-        for i in result:
-            print(i['PID'])
+            choice = input("Enter your choice: ")
 
-    if args.terminate:
-        termination_result = manager.terminate_process(args.terminate)
-        print(termination_result)
+            if choice == '1':
+                new_process = manager.create_and_start_process(False)
+                time.sleep(1)
+                target_pid = new_process.pid
+                result = manager.get_process_info_by_pid(target_pid)
+                print(result)
 
-    if args.threads:
-        thread_choice = input("Enter your choice for thread management (1 for synchronization, 2 for IPC Operations): ")
-        if thread_choice == '1':
-            manager.create_and_start_process(True)  # Call the synchronization method
-        elif thread_choice == '2':
-            manager.ipc_operations()  # Call the IPC operations method
+            elif choice == '2':
+                print("\nManagement Menu:")
+                print("1. List Running Processes")
+                print("2. View Process")
+                print("3. Terminate Process")
+                command = input("Enter your choice: ")
+                if command == '1':
+                    result = manager.process_management_list()
+                    print("Registered Processes:")
+                    for i in result:
+                        print(i['PID'])
+                elif command == '2':
+                    p = int(input("Enter PID of process to view: "))
+                    result = manager.process_management_list()
+                    print("\n--------------------------------")
+                    print("Viewing Information on process: ", p)
+                    process_exists = False  # Flag to check if the process exists
+                    for i in result:
+                        if i['PID'] == p:
+                            process_exists = True
+                            print("PID:", i['PID'], "Parent PID:", i['Parent PID'], "Status:", i['Status'])
+                    if not process_exists:
+                        print(f"Process with PID {p} does not exist.")
+                elif command == '3':
+                    p = int(input("Enter PID of process to Terminate: "))
+                    result = manager.process_management_list()
+                    for i in result:
+                        if i['PID'] == p:
+                            if input("Terminate the process? (y/n): ").lower() == "y":
+                                termination_result = manager.terminate_process(i['PID'])
+                                print(termination_result)
+
+            elif choice == '3':
+                # Implement thread management menu
+                print("\nThread Management Menu:")
+                print("1. Synchronize Threads")
+                print("2. IPC Operations")
+                thread_choice = input("Enter your choice: ")
+                if thread_choice == '1':
+                    manager.create_and_start_process(True)  # Call the synchronization method
+                elif thread_choice == '2':
+                    manager.ipc_operations()  # Call the IPC operations method
+
+            elif choice == '5':
+                manager.terminate_all()
+                break
 
     if args.log:
         manager.display_log_contents('process_manager.log')
-        
+
+    if args.exit:
+        manager.terminate_all()
+        exit()
+
