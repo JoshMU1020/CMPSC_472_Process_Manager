@@ -184,23 +184,12 @@ class ProcessManager:
             empty.release()
             time.sleep(random.uniform(0.1, 0.5))
 
-    def send_message(self, message, thread_id):
-        self.thread_message_queue.put((message, thread_id))
-        logging.info(f"Thread {thread_id} sent a message: {message}")
-
-    def receive_message(self, thread_id):
-        try:
-            message, sender_thread_id = self.thread_message_queue.get_nowait()
-            logging.info(f"Thread {thread_id} received a message from Thread {sender_thread_id}: {message}")
-        except queue.Empty:
-            logging.info(f"Thread {thread_id} received no messages.")
-    
-    def ipc_operations(self):  # Start a few threads to simulate sending and receiving messages
+    def ipc_operations(self):
         logging.info("Displaying IPC Operations Menu...")
         print("Simulating Message Passing between Threads")
-        ipc_message = str(input("Enter the message you wish to have the threads communicate: "))
-        if ipc_message is None:
-            ipc_message = "Hello from Thread 1!"
+        ipc_message = input("Enter the message you wish to have the threads communicate: ")
+
+        # Generate unique identifiers for the sender and receiver threads
         sender_thread_id = 1
         receiver_thread_id = 2
 
@@ -212,6 +201,17 @@ class ProcessManager:
         thread2.start()
         thread1.join()
         thread2.join()
+
+    def send_message(self, message, thread_id):
+        self.thread_message_queue.put((message, thread_id))
+        logging.info(f"Thread {thread_id} sent a message: {message}")
+
+    def receive_message(self, thread_id):
+        try:
+            message, sender_thread_id = self.thread_message_queue.get_nowait()
+            logging.info(f"Thread {thread_id} received a message from Thread {sender_thread_id}: {message}")
+        except queue.Empty:
+            logging.info(f"Thread {thread_id} received no messages.")
 
     def display_log_contents(self, log_file):
         logging.info("Attempting to display logger contents...")
