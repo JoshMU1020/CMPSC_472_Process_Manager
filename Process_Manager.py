@@ -16,7 +16,7 @@ class ProcessManager:
         self.process_pids = []
         self.threads = []
 
-        #self.queue = multiprocessing.Queue()
+        self.queue = multiprocessing.Queue()
         self.thread_message_queue = multiprocessing.Queue()
 
         self.BUFFER_SIZE = 5
@@ -37,7 +37,7 @@ class ProcessManager:
             logging.info("Creating process from default external script")
             interp = "default.py"
             logging.info(f"Worker process PID: {os.getpid()}")
-            duration = 60
+            duration = random.randint(1, 12) * 5
             process = subprocess.Popen(["python", interp, str(duration)], stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
         elif os.path.exists(interp) and interp.endswith(".py"):
@@ -74,7 +74,7 @@ class ProcessManager:
 
         logging.info(f"Process created with PID: {process_pid}")
 
-        #self.queue.put(f"Data from Process {process_pid}")  # Add data to the IPC queue
+        self.queue.put(f"Data from Process {process_pid}")  # Add data to the IPC queue
         return new_process_instance
 
     def get_process_info_by_pid(self, target_pidi):
@@ -108,8 +108,8 @@ class ProcessManager:
 
     def terminate_process(self, targeted_pid):
         logging.info(f"Attempting to delete process with PID: {targeted_pid}")
-        for process in self.process_pids:
-            if process.pid == targeted_pid:
+        for process in self.processes:
+            if int(process.pid) == int(targeted_pid):
                 if process.is_alive():
                     process.terminate()
                     process.join()
@@ -120,12 +120,12 @@ class ProcessManager:
                     logging.info(f"Process {targeted_pid} is already completed.")
                     return f"Process {targeted_pid} is already completed."
             else:
-                logging.info(f"Process {targeted_pid} not found in the list of processes.")
-                return f"Process {targeted_pid} not found in the list of processes."
+                logging.info(f"Process {targeted_pid} not found in the list of processes. Either it does not exist or it was completed")
+                return f"Process {targeted_pid} not found in the list of processes. Either it does not exist or it was completed"
 
     def terminate_all(self):
         logging.info("Attempting to terminate all processes")
-        for process in self.process_pids:
+        for process in self.processes:
             if process.is_alive():
                 process.terminate()
                 process.join()
@@ -198,19 +198,18 @@ class ProcessManager:
     def ipc_operations(self):  # Start a few threads to simulate sending and receiving messages
         logging.info("Displaying IPC Operations Menu...")
         print("Simulating Message Passing between Threads")
-        ipc_choice = 1
         ipc_message = str(input("Enter the message you wish to have the threads communicate: "))
-        if ipc_message is not None:
+        if ipc_message is None:
             ipc_message = "Hello from Thread 1!"
-        if ipc_choice == '1':
-            thread1 = threading.Thread(target=self.send_message, args=(ipc_message,))
-            thread2 = threading.Thread(target=self.receive_message)
+        thread1 = threading.Thread(target=self.send_message, args=(ipc_message,))
+        thread2 = threading.Thread(target=self.receive_message)
 
-            thread1.start()
-            time.sleep(1)
-            thread2.start()
-            thread1.join()
-            thread2.join()
+        thread1.start()
+        time.sleep(1)
+        thread2.start()
+        time.sleep(1)
+        thread1.join()
+        thread2.join()
 
     def display_log_contents(self, log_file):
         logging.info("Attempting to display logger contents...")
