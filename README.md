@@ -39,7 +39,7 @@ This process manager incorporates a command-line interface using the argparse mo
 
 The CLI provides a menu-driven interface for users to interact with the Process Manager to create processes, manage to create threads, synchronize threads, and showcase some IPC-related functions. The CLI showcases the following interface after the --begin command is invoked:
 
-![Alt Text](git_pic_472_menu.png)
+![Alt Text](readme_images/472_image_1.png)
 
 ### 7. Logging and Reporting:
 Logging and reporting are integral parts of the program. The logging library is used to log various events and messages throughout the software. Log messages are written to a log file named **"process_manager.log"** and can be accessed using the "Log Access" menu option. The program allows users to view the log contents, which can be useful for monitoring threads and processes as well as viewing the inner workings of the threading processes and message-passing functions.
