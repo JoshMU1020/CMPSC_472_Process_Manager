@@ -39,17 +39,7 @@ This process manager incorporates a command-line interface using the argparse mo
 
 The CLI provides a menu-driven interface for users to interact with the Process Manager to create processes, manage create threads, synchronize threads, and showcase some IPC related functions. The CLI showcases the following interface after the --begin command is invoked:
 
- Process Manager Menu:
-Command List : Operation
-------------------------
-1) Create       : Create a new process
-2) Manage       : Manage created processes
-3) Threads      : Manage threads
-4) Create Other : Create a process with another file other than default .py file
-5) Log Assess   : View log report
-6) Exit         : End program
-Enter the integer assigned to the desired function: 
-
+![Alt Text](Image URL)
 
 ### 7. Logging and Reporting:
 
