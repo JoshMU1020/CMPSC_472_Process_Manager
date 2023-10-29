@@ -260,7 +260,7 @@ if __name__ == '__main__':
             print("2) Manage       : Manage created processes")
             print("3) Threads      : Manage threads")
             print("4) Create Other : Create a process with another file other than default .py file")
-            print("5) Log Assess   : View log report")
+            print("5) Log Access   : View log report")
             print("6) Exit         : End program")
 
             choice = input("Enter the integer assigned to the desired function: ")
