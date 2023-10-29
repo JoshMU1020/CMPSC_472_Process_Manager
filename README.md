@@ -39,7 +39,9 @@ This process manager incorporates a command-line interface using the argparse mo
 
 The CLI provides a menu-driven interface for users to interact with the Process Manager to create processes, manage create threads, synchronize threads, and showcase some IPC related functions. The CLI showcases the following interface after the --begin command is invoked:
 
-![Alt Text](Image URL)
+![Alt Text](git_pic_472_menu.png)
+
+
 
 ### 7. Logging and Reporting:
 
