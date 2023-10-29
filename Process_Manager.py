@@ -28,10 +28,17 @@ class ProcessManager:
         self.total_items = 0
 
     def worker_function(self, interp):
-        if interp is not None:
+        if interp is None:
+            interp = "default.py"
             logging.info(f"Worker process PID: {os.getpid()}")
             duration = 60
-            process = subprocess.Popen(["python", "default.py", str(duration)], stdout=subprocess.PIPE,
+            process = subprocess.Popen(["python", interp, str(duration)], stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+        elif os.path.exists(interp):
+            pass
+            logging.info(f"Worker process PID: {os.getpid()}")
+            duration = 60
+            process = subprocess.Popen(["python", interp], stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
         else:
             time.sleep(5)
@@ -39,20 +46,9 @@ class ProcessManager:
             return
         return
 
-    def create_and_start_process(self, uses_t):
+    def create_and_start_process(self, uses_t, interp_path):
         logging.info("Creating new process...")
         self.total_items = random.randint(2, 5) * 4  # Randomly generate the number of data items
-
-        interp_path = "./"
-        ans = input("Do you wish to run the standard file [y/n]: ")
-        if ans.lower() == 'y':
-            pass
-        elif ans.lower() == 'n':
-            ans = input("Do you wish to run the another file [y/n]: ")
-            if ans.lower() == 'y':
-                interp_path = str(input("Enter path to .py file you wish to run: "))
-            else:
-                interp_path = None
 
         if not uses_t:
             new_process_instance = multiprocessing.Process(target=self.worker_function, args=(interp_path,))
@@ -268,12 +264,12 @@ if __name__ == '__main__':
             print("2) manage       : Manage created processes")
             print("3) threads      : Manage threads")
             print("4) log          : View log report")
-            print("5) exit         : End program")
+            print("6) exit         : End program")
 
             choice = input("Enter your choice: ")
 
             if choice == '1':
-                new_process = manager.create_and_start_process(False)
+                new_process = manager.create_and_start_process(False, None)
                 time.sleep(1)
                 target_pid = new_process.pid
                 result = manager.get_process_info_by_pid(target_pid)
@@ -318,11 +314,28 @@ if __name__ == '__main__':
                 print("2. IPC Operations")
                 thread_choice = input("Enter your choice: ")
                 if thread_choice == '1':
-                    manager.create_and_start_process(True)  # Call the synchronization method
+                    manager.create_and_start_process(True, None)  # Call the synchronization method
                 elif thread_choice == '2':
                     manager.ipc_operations()  # Call the IPC operations method
 
+            elif choice == '4':
+                print("log")
+            
             elif choice == '5':
+                interp_path = None
+                ans = input("Do you wish to run the default file process? [y/n]: ")
+                if ans.lower() == 'y':
+                    pass
+                elif ans.lower() == 'n':
+                    ans = input("Do you wish to run the another file [y/n]: ")
+                    if ans.lower() == 'y':
+                        interp_path = str(input("Enter path to .py file you wish to run: "))
+                    else:
+                        interp_path = None
+                else:
+                    interp_path = None
+
+            elif choice == '6':
                 manager.terminate_all()
                 break
 
