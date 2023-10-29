@@ -16,7 +16,7 @@ class ProcessManager:
         self.process_pids = []
         self.threads = []
 
-        self.queue = multiprocessing.Queue()
+        #self.queue = multiprocessing.Queue()
         self.thread_message_queue = multiprocessing.Queue()
 
         self.BUFFER_SIZE = 5
@@ -28,7 +28,12 @@ class ProcessManager:
         self.total_items = 0
 
     def worker_function(self, interp):
-        if interp == "Default" and os.path.exists(interp):
+        if interp is None:
+            logging.info("Creating process from base work function")
+            time.sleep(5)
+            logging.info(f"Worker process PID: {os.getpid()}")
+            return
+        elif interp == "Default" and os.path.exists(interp):
             logging.info("Creating process from default external script")
             interp = "default.py"
             logging.info(f"Worker process PID: {os.getpid()}")
@@ -64,20 +69,20 @@ class ProcessManager:
         process_pid = new_process_instance.pid
 
         self.process_pids.append(process_pid)
-        logging.info("Updated list of ran process ids\n", self.process_pids)
+        #logging.info("Updated list of ran process ids\n", self.process_pids)
         self.processes.append(new_process_instance)
 
         logging.info(f"Process created with PID: {process_pid}")
 
-        self.queue.put(f"Data from Process {process_pid}")  # Add data to the IPC queue
+        #self.queue.put(f"Data from Process {process_pid}")  # Add data to the IPC queue
         return new_process_instance
 
     def get_process_info_by_pid(self, target_pidi):
         try:
             process = psutil.Process(target_pidi)
             if process.is_running():
-                logging.info(f"Process {target_pidi} exists and is still running.")
-                return f"Process {target_pidi} exists and is still running."
+                logging.info(f"Process {target_pidi} exists and is running.")
+                return f"Process {target_pidi} exists and is running."
             else:
                 logging.info(f"Process {target_pidi} exists and has completed.")
                 return f"Process {target_pidi} exists and has completed."
@@ -236,7 +241,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # python Process_Manager.py --begin in terminal to start the program
-    print("\n_________Welcome to the CMPSC 472 Process Manager_________'\n")
+    print("\n_________Welcome to the CMPSC 472 Process Manager_________\n")
 
     if args.begin:
         while True:
