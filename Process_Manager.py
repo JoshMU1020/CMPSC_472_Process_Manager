@@ -28,18 +28,20 @@ class ProcessManager:
         self.total_items = 0
 
     def worker_function(self, interp):
-        if interp is None:
+        if interp == "Default" and os.path.exists(interp):
+            logging.info("Creating process from default external script")
             interp = "default.py"
             logging.info(f"Worker process PID: {os.getpid()}")
             duration = 60
             process = subprocess.Popen(["python", interp, str(duration)], stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-        elif os.path.exists(interp):
+        elif os.path.exists(interp) and interp.endswith(".py"):
+            logging.info("Creating process from given path")
             logging.info(f"Worker process PID: {os.getpid()}")
-            duration = 60
             process = subprocess.Popen(["python", interp], stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
         else:
+            logging.info("Creating process from base work function")
             time.sleep(5)
             logging.info(f"Worker process PID: {os.getpid()}")
             return
@@ -50,8 +52,10 @@ class ProcessManager:
         self.total_items = random.randint(2, 5) * 4  # Randomly generate the number of data items
 
         if not uses_t:
+            logging.info("Process running without threading")
             new_process_instance = multiprocessing.Process(target=self.worker_function, args=(interp_path,))
         else:
+            logging.info("Process running with threading")
             new_process_instance = multiprocessing.Process(target=self.synchronize_threads)
 
         new_process_instance.start()
@@ -60,7 +64,7 @@ class ProcessManager:
         process_pid = new_process_instance.pid
 
         self.process_pids.append(process_pid)
-        print(self.process_pids)
+        logging.info("Updated list of ran process ids\n", self.process_pids)
         self.processes.append(new_process_instance)
 
         logging.info(f"Process created with PID: {process_pid}")
@@ -94,7 +98,6 @@ class ProcessManager:
                 }
                 process_info_list.append(process_info)
             except psutil.NoSuchProcess:
-                # Handle the case where the process is not found
                 logging.error(f"Process with PID {p_id.pid} not found.")
         return process_info_list
 
@@ -149,7 +152,7 @@ class ProcessManager:
             consumer_thread.join()
 
     def producer(self, buffer, mutex, empty, data, min_value, max_value, pro_id):
-        logging.info("Creating producer...")
+        logging.info("Creating producer thread...")
         for i in range(self.total_items):
             item = random.randint(min_value, max_value)
             logging.info(f"Producer {pro_id} aquiring resources...")
@@ -177,12 +180,10 @@ class ProcessManager:
             time.sleep(random.uniform(0.1, 0.5))
 
     def send_message(self, message):
-        """Simulate one thread sending a message to another."""
         self.thread_message_queue.put(message)
         logging.info(f"Thread {threading.current_thread().ident} sent a message: {message}")
 
     def receive_message(self):
-        """Simulate one thread receiving a message from another."""
         try:
             message = self.thread_message_queue.get_nowait()
             logging.info(f"Thread {threading.current_thread().ident} received a message: {message}")
@@ -191,11 +192,10 @@ class ProcessManager:
 
     def ipc_operations(self):  # Start a few threads to simulate sending and receiving messages
         logging.info("Displaying IPC Operations Menu...")
-        print("\nIPC Operations Menu:")
-        print("Simulating Message Passing (Between Threads)")
+        print("Simulating Message Passing between Threads")
         ipc_choice = 1
         ipc_message = str(input("Enter the message you wish to have the threads communicate: "))
-        if ipc_message == None:
+        if ipc_message is not None:
             ipc_message = "Hello from Thread 1!"
         if ipc_choice == '1':
             thread1 = threading.Thread(target=self.send_message, args=(ipc_message,))
@@ -208,10 +208,12 @@ class ProcessManager:
             thread2.join()
 
     def display_log_contents(self, log_file):
+        logging.info("Attempting to display logger contents...")
         try:
             with open(log_file, 'r') as file:
                 log_contents = file.read()
                 print(log_contents)
+                logging.info("Log contents displayed.")
         except FileNotFoundError:
             print(f"Log file '{log_file}' not found.")
 
@@ -225,17 +227,16 @@ if __name__ == '__main__':
     with open('process_manager.log', 'w'):
         pass
 
-    # Initialize the ArgumentParser
     parser = argparse.ArgumentParser(description='Process Manager CLI')
-    # Define command-line arguments and their descriptions
+    # Command-line arguments and their descriptions
     parser.add_argument('--begin', action='store_true', help='Begin instance of Process Manager')
     parser.add_argument('--log', action='store_true', help='View log report')
-    parser.add_argument('--exit', action='store_true', help='End program')
 
     # Parse the command-line arguments
     args = parser.parse_args()
 
-    print("\nEnter your command in the form of 'python Process_Manager.py --begin'\n")
+    # python Process_Manager.py --begin in terminal to start the program
+    print("\n_________Welcome to the CMPSC 472 Process Manager_________'\n")
 
     if args.begin:
         while True:
@@ -244,17 +245,17 @@ if __name__ == '__main__':
             print("\n Process Manager Menu:")
             print("Command List : Operation")
             print("------------------------")
-            print("1) create       : Create a new process")
-            print("2) manage       : Manage created processes")
-            print("3) threads      : Manage threads")
-            print("4) log          : View log report")
-            print("5) create other : Create a process with another file other than default .py file")
-            print("6) exit         : End program")
+            print("1) Create       : Create a new process")
+            print("2) Manage       : Manage created processes")
+            print("3) Threads      : Manage threads")
+            print("4) Create Other : Create a process with another file other than default .py file")
+            print("5) Log Assess   : View log report")
+            print("6) Exit         : End program")
 
-            choice = input("Enter your choice: ")
+            choice = input("Enter the integer assigned to the desired function: ")
 
             if choice == '1':
-                new_process = manager.create_and_start_process(False, None)
+                new_process = manager.create_and_start_process(False, "default")
                 time.sleep(1)
                 target_pid = new_process.pid
                 result = manager.get_process_info_by_pid(target_pid)
@@ -262,10 +263,12 @@ if __name__ == '__main__':
 
             elif choice == '2':
                 print("\nManagement Menu:")
-                print("1. List Running Processes")
-                print("2. View Process")
-                print("3. Terminate Process")
-                command = input("Enter your choice: ")
+                print("Command List                : Operation")
+                print("---------------------------------------")
+                print("1) List Running Processes   : View PIDs associated with running processes")
+                print("2) View Process             : View information on a specific process based on PID")
+                print("3) Terminate Process        : Terminate a running process based on PID")
+                command = input("Enter the integer assigned to the desired function: ")
                 if command == '1':
                     result = manager.process_management_list()
                     print("Registered Processes:")
@@ -310,15 +313,16 @@ if __name__ == '__main__':
                 print("2. IPC Operations")
                 thread_choice = input("Enter your choice: ")
                 if thread_choice == '1':
-                    manager.create_and_start_process(True, None)  # Call the synchronization method
+                    manager.create_and_start_process(True, "default")  # Call the synchronization method
                 elif thread_choice == '2':
                     manager.ipc_operations()  # Call the IPC operations method
-            
+
             elif choice == '4':
+                logging.info("")
                 interp_path = None
                 ans = input("Do you wish to run the default file process? [y/n]: ").lower()
                 if ans == 'y':
-                    new_process = manager.create_and_start_process(False, None)
+                    new_process = manager.create_and_start_process(False, "default")
                     time.sleep(1)
                     target_pid = new_process.pid
                     result = manager.get_process_info_by_pid(target_pid)
@@ -339,6 +343,11 @@ if __name__ == '__main__':
                             print("File not found.")
                     elif ans == 'n':
                         interp_path = None
+                        new_process = manager.create_and_start_process(False, interp_path)
+                        time.sleep(1)
+                        target_pid = new_process.pid
+                        result = manager.get_process_info_by_pid(target_pid)
+                        print(result)
                     else:
                         print("Invalid input. Please enter 'y' or 'n'.")
                 else:
@@ -356,8 +365,4 @@ if __name__ == '__main__':
 
     if args.log:
         manager.display_log_contents('process_manager.log')
-
-    if args.exit:
-        manager.terminate_all()
-        exit()
 
