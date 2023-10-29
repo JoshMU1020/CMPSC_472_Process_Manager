@@ -184,30 +184,32 @@ class ProcessManager:
             empty.release()
             time.sleep(random.uniform(0.1, 0.5))
 
-    def send_message(self, message):
-        self.thread_message_queue.put(message)
-        logging.info(f"Thread {threading.current_thread().ident} sent a message: {message}")
+    def send_message(self, message, thread_id):
+        self.thread_message_queue.put((message, thread_id))
+        logging.info(f"Thread {thread_id} sent a message: {message}")
 
-    def receive_message(self):
+    def receive_message(self, thread_id):
         try:
-            message = self.thread_message_queue.get_nowait()
-            logging.info(f"Thread {threading.current_thread().ident} received a message: {message}")
+            message, sender_thread_id = self.thread_message_queue.get_nowait()
+            logging.info(f"Thread {thread_id} received a message from Thread {sender_thread_id}: {message}")
         except queue.Empty:
-            logging.info(f"Thread {threading.current_thread().ident} received no messages.")
-
+            logging.info(f"Thread {thread_id} received no messages.")
+    
     def ipc_operations(self):  # Start a few threads to simulate sending and receiving messages
         logging.info("Displaying IPC Operations Menu...")
         print("Simulating Message Passing between Threads")
         ipc_message = str(input("Enter the message you wish to have the threads communicate: "))
         if ipc_message is None:
             ipc_message = "Hello from Thread 1!"
-        thread1 = threading.Thread(target=self.send_message, args=(ipc_message,))
-        thread2 = threading.Thread(target=self.receive_message)
+        sender_thread_id = 1
+        receiver_thread_id = 2
+
+        thread1 = threading.Thread(target=self.send_message, args=(ipc_message, sender_thread_id))
+        thread2 = threading.Thread(target=self.receive_message, args=(receiver_thread_id))
 
         thread1.start()
         time.sleep(1)
         thread2.start()
-        time.sleep(1)
         thread1.join()
         thread2.join()
 
