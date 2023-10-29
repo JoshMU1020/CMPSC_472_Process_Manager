@@ -43,7 +43,7 @@ class ProcessManager:
         logging.info("Creating new process...")
         self.total_items = random.randint(2, 5) * 4  # Randomly generate the number of data items
 
-        interp_path = "/usr/bin/python3"
+        interp_path = "./"
         ans = input("Do you wish to run the standard file [y/n]: ")
         if ans.lower() == 'y':
             pass
