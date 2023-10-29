@@ -17,34 +17,28 @@ This project was assigned as an assignment from my CMPSC 472, Operating Systems 
 When designing this process manager, I looked at the individual requirements and looked for various Python libraries that showcased similar functionalities to what the project's requirements described. The libraries that stuck out the most to me were the os, threading, multiprocessing, subprocess, and pstil python libraries. These libraries showcased examples of functionalities that greatly resembled the related topics that I was tasked with showing in my process manager implementation despite the limitations of the Python language with regard to process management. That said, when testing some of these libraries' functionalities, I ran into a number of issues with my initial Windows development environment. Some libraries, such as the os and psuitl libraries, could not access all of their functions as they were not compatible with the Windows environment system. I attempted to design my process manager implementation in both Google Colab and Jupiter notebooks environments but fell into some issues with trying out the libraries there as well. In the end, I found success when attempting to develop the software on a Linux machine where all of the libraries that I wanted to incorporate into my software were available with full functionality. 
 
 ## Implimented Features:
+The following describe the extent of the implimentations of the concepts that were expected to be implimented into my process manager software.
+
 ### 1. Process Creation:
-- Preocess Creation Mechanism that allows users to create new processes.
-  - Done using system calls for preocess creation (Ex. fork(), exec()).
+Process creation is initiated in the **create_and_start_process** method. It allows the program to start new processes, either with or without threading depending on what the user desires. By default, the 'Create' function create a process based on a build-in **worker_function**. This function will, if the 'default.py' script is discoverable, create a process based on the contents of that program as a subprocess. Otherwise, if the external files are not found, the **worker_function** will fall back to the built in process representation comprized of a sleep function to simulate the process running and doing work. Users can choose to create processes with the default settings or specify a custom Python script file with the option to use threading or not.
+
 ### 2. Process Management:
-- List preocesses.
-- Terminate processes.
-- Monitor currently running processes.
-- Allows users access to information about running processes (Ex. process id (PID), parent process id, and current state).
+
+
 ### 3. Thread Support:
-- Process Manager supports multiple threads.
-- Includes thread mechanisms of:
-  - Creation.
-  - Termination.
-  - Synchronization
-- Uses system calls for thread creatioon (Ex. pthread_create) and synchronization (Ex. mutexes, semaphores)
+This process manager demonstrates support for threading within processes. Threading is simulated in the **create_and_start_process** function where a variable is assigned to a randomly generated value representing the amount of items/data that a process may want to manipulate. This process, if the user specifies, can then be created to use this variable to create threads to acquire use, and release resources by implementing Process Synchronization which will be described further below.
+
 ### 4. Inter-Process Communication (IPC):
-- Impliments IPC mechanisms for the purpose of allowing processes and threads to communicate and share data.
-- Possable methodesinclude, **message passing, shared memory, or pipes** for IPC.
-- Uses system calls for IPC operations (Ex. pipe, msgget, shmget)
+
+
 ### 5. Process Synchronization:
-- Impliments synchronization primitives like mutexes and semaphores.
-- Uses synchronization mechanics to address issues such as producer-consumer and reader-writer problems
+
+
 ### 6. Command-Line Interface (CLI):
-- Showcases a user-frendly interface to interact with the process manager.
-- UI allows users to create preocesses and threads and allows for the synchronization of threads and use of IPC operations.
+
+
 ### 7. Logging and Reporting:
-- Impliments logging and reporting features to track and display the execution of preocesses and threads.
-- Used to log significant events, error, and process synchronization related information.
+
 
 ## How to run the Preocess Manager:
 This repository showcases a number of files that relate to the process manager. That said, The ony file that primarily matters is the Process_manager.py file. This file was designed to be able to work on its own using a built in worker function to simulate the work of processes functioning with various time requirements. In order to run the project itself, there are two main methods of doing so.
@@ -58,6 +52,7 @@ The best way to test the project is right in GitHUb codespaces. The repository s
 The other way of using the process manager, is by downloading the Process_Manager.py file to your local machine and running it in a linux terminal. To do this, you will need to open the terminal and verify that you have python 3 and pip installed. If not, you will need to aquire them. Once you have python and pip, do:
 
 pip install --upgrade pip
+
 pip install psutil
 
 Once complete, in the terminal, change to the directory where the Process_Manager.py file is located. Then, similar to before, you can type "python3 Process_Manager.py --begin". Keep in mind that some linux terminals will need to have 'python3' specified before the command instead of just 'python'. Now you should be able to run the project just as you would in codespaces with one difference. If you wanted to use the optional subprocess simulating programs, you will need to also download them and keep note of what directory they are in. If this is done, then when prompted, teh user can select "Create Other" from the command line menu and if desired, will be able to input either "path/to/default.py" or "path/to/other_process.py" to create a subprocess based on either of thoese files. **NOTE:** The way the the Process_Manager.py file is set up, you can write the path to any .py file to create a proces based on the at python file, it may not work correctly for other files. It should still fuction and create a psudo process out of that call though, so long as the directory exists as a .py file since it is creating is as a subprocess. 
