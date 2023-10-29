@@ -68,7 +68,7 @@ class ProcessManager:
         # Get the process PID before starting it
         process_pid = new_process_instance.pid
 
-        self.process_pids.append(process_pid)
+        self.process_pids.append(int(process_pid))
         #logging.info("Updated list of ran process ids\n", self.process_pids)
         self.processes.append(new_process_instance)
 
@@ -87,8 +87,12 @@ class ProcessManager:
                 logging.info(f"Process {target_pidi} exists and has completed.")
                 return f"Process {target_pidi} exists and has completed."
         except psutil.NoSuchProcess:
-            logging.info(f"Process {target_pidi} does not exist.")
-            return f"Process {target_pidi} does not exist."
+            if int(targeted_pid) in self.process_pids:
+                logging.info(f"Process {targeted_pid} has already completed")
+                return f"Process {targeted_pid} has already completed"
+            else:
+                logging.info(f"Process {target_pidi} does not exist.")
+                return f"Process {target_pidi} does not exist."
 
     def process_management_list(self):
         logging.info(f"Process list of ran/running processes.")
@@ -113,15 +117,19 @@ class ProcessManager:
                 if process.is_alive():
                     process.terminate()
                     process.join()
-                    self.process_pids.remove(process)
+                    self.processes.remove(process)
                     logging.info(f"Process {targeted_pid} has been forcibly terminated.")
                     return f"Process {targeted_pid} has been forcibly terminated."
                 else:
                     logging.info(f"Process {targeted_pid} is already completed.")
                     return f"Process {targeted_pid} is already completed."
             else:
-                logging.info(f"Process {targeted_pid} not found in the list of processes. Either it does not exist or it was completed")
-                return f"Process {targeted_pid} not found in the list of processes. Either it does not exist or it was completed"
+                if int(targeted_pid) in self.process_pids:
+                    logging.info(f"Process {targeted_pid} has already completed")
+                    return f"Process {targeted_pid} has already completed"
+                else:
+                    logging.info(f"Process {targeted_pid} not found in the list of processes. Either it does not exist or it was completed")
+                    return f"Process {targeted_pid} not found in the list of processes. Either it does not exist or it was completed"
 
     def terminate_all(self):
         logging.info("Attempting to terminate all processes")
@@ -129,7 +137,7 @@ class ProcessManager:
             if process.is_alive():
                 process.terminate()
                 process.join()
-                self.process_pids.remove(process)
+                self.processes.remove(process)
                 logging.info(f"Process {process.pid} has been forcibly terminated.")
             else:
                 logging.info(f"Process {process.pid} is already completed.")
@@ -289,7 +297,10 @@ if __name__ == '__main__':
                                 process_exists = True
                                 print("PID:", i['PID'], "Parent PID:", i['Parent PID'], "Status:", i['Status'])
                         if not process_exists:
-                            print(f"Process with PID {p} does not exist.")
+                            if int(p) in self.process_pids:
+                                return f"Process {p} is already completed"
+                            else:
+                                print(f"Process with PID {p} does not exist.")
                     except ValueError:
                         print("Invalid input. Please enter a valid integer PID.")
                 elif command == '3':
