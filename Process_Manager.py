@@ -330,7 +330,8 @@ if __name__ == '__main__':
                 elif ans == 'n':
                     ans = input("Do you wish to run another file [y/n]: ").lower()
                     if ans == 'y':
-                        interp_path = input("Enter path to .py file you wish to run in the form of file.py: ")
+                        interp_path = input("Enter path to .py file you wish to run in the form of file.py; (Example: "
+                                            "other_process.py): ")
                         check = input("Does this process desire the use of threading? [y/n]: ").lower()
                         val = check == 'y'
                         if os.path.exists(interp_path):
@@ -366,3 +367,6 @@ if __name__ == '__main__':
     if args.log:
         manager.display_log_contents('process_manager.log')
 
+    if args.exit:
+        manager.terminate_all()
+        exit()
