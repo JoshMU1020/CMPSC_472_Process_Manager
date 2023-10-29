@@ -31,7 +31,7 @@ class ProcessManager:
         if interp is not None:
             logging.info(f"Worker process PID: {os.getpid()}")
             duration = 60
-            process = subprocess.Popen([interp, "sleep.py", str(duration)], stdout=subprocess.PIPE,
+            process = subprocess.Popen(["python", "default.py", str(duration)], stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
         else:
             time.sleep(5)
