@@ -3,10 +3,10 @@ import threading
 import multiprocessing
 import time
 import logging
-import psutil
 import random
 import queue
 import argparse
+import psutil
 
 
 class ProcessManager:
