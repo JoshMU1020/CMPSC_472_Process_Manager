@@ -298,7 +298,7 @@ if __name__ == '__main__':
                                 print("PID:", i['PID'], "Parent PID:", i['Parent PID'], "Status:", i['Status'])
                         if not process_exists:
                             if int(p) in self.process_pids:
-                                return f"Process {p} is already completed"
+                                print(f"Process {p} is already completed")
                             else:
                                 print(f"Process with PID {p} does not exist.")
                     except ValueError:
