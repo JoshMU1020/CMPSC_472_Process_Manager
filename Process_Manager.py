@@ -368,10 +368,4 @@ if __name__ == '__main__':
 
             else:
                 print("Invalid input. Please enter an integer associated with the given command table.")
-
-    if args.log:
-        manager.display_log_contents('process_manager.log')
-
-    if args.exit:
-        manager.terminate_all()
-        exit()
+                
