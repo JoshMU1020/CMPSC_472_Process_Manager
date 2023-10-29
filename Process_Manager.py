@@ -87,9 +87,9 @@ class ProcessManager:
                 logging.info(f"Process {target_pidi} exists and has completed.")
                 return f"Process {target_pidi} exists and has completed."
         except psutil.NoSuchProcess:
-            if int(targeted_pid) in self.process_pids:
-                logging.info(f"Process {targeted_pid} has already completed")
-                return f"Process {targeted_pid} has already completed"
+            if int(target_pidi) in self.process_pids:
+                logging.info(f"Process {target_pidi} has already completed")
+                return f"Process {target_pidi} has already completed"
             else:
                 logging.info(f"Process {target_pidi} does not exist.")
                 return f"Process {target_pidi} does not exist."
@@ -297,7 +297,7 @@ if __name__ == '__main__':
                                 process_exists = True
                                 print("PID:", i['PID'], "Parent PID:", i['Parent PID'], "Status:", i['Status'])
                         if not process_exists:
-                            if int(p) in self.process_pids:
+                            if int(p) in manager.process_pids:
                                 print(f"Process {p} is already completed")
                             else:
                                 print(f"Process with PID {p} does not exist.")
@@ -377,5 +377,3 @@ if __name__ == '__main__':
 
             else:
                 print("Invalid input. Please enter an integer associated with the given command table.")
-                
-
