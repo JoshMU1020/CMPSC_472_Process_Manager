@@ -25,25 +25,25 @@ class ProcessManager:
         self.data = threading.Semaphore(0)
         self.total_items = 0
 
-    def worker_function(self, interp):  # Function to simulaye work done by created processes.
-        if interp is None:
+    def worker_function(self, interp):  # Function to simulaye work done by created processes
+        if interp is None:  # base sleep work
             logging.info("Creating process from base work function")
             time.sleep(5)
             logging.info(f"Worker process PID: {os.getpid()}")
             return
-        elif interp == "Default" and os.path.exists(interp):
+        elif interp == "Default" and os.path.exists(interp):  # default external subprocess work
             logging.info("Creating process from default external script")
             interp = "default.py"
             logging.info(f"Worker process PID: {os.getpid()}")
             duration = random.randint(1, 12) * 5
             process = subprocess.Popen(["python", interp, str(duration)], stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-        elif os.path.exists(interp) and interp.endswith(".py"):
+        elif os.path.exists(interp) and interp.endswith(".py"):  # optional external subprocess work
             logging.info("Creating process from given path")
             logging.info(f"Worker process PID: {os.getpid()}")
             process = subprocess.Popen(["python", interp], stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-        else:
+        else:  # base sleep work
             logging.info("Creating process from base work function")
             time.sleep(5)
             logging.info(f"Worker process PID: {os.getpid()}")
@@ -54,7 +54,7 @@ class ProcessManager:
         logging.info("Creating new process...")
         self.total_items = random.randint(2, 5) * 4  # Randomly generate the number of data items to be used if the process uses threading
 
-        if not uses_t:
+        if not uses_t:  # if no threading is used, referenced function uses worker_function, otherwise it goes straight to synchronize_threads
             logging.info("Process running without threading")
             new_process_instance = multiprocessing.Process(target=self.worker_function, args=(interp_path,))
         else:
@@ -226,12 +226,12 @@ class ProcessManager:
 
 
 if __name__ == '__main__':
-    manager = ProcessManager()
+    manager = ProcessManager()  # initiate process manager
 
     logging.basicConfig(filename='process_manager.log', level=logging.INFO, format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
 
-    with open('process_manager.log', 'w'):
+    with open('process_manager.log', 'w'):  # reset logger when starting new instance
         pass
 
     parser = argparse.ArgumentParser(description='Process Manager CLI')
