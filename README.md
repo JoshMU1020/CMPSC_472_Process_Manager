@@ -39,7 +39,7 @@ This process manager incorporates a command-line interface using the argparse mo
 
 The CLI provides a menu-driven interface for users to interact with the Process Manager to create processes, manage to create threads, synchronize threads, and showcase some IPC-related functions. The CLI showcases the following interface after the --begin command is invoked:
 
-![Alt Text](readme_images/472_image_1.png)
+<img src="readme_images/472_image_1.png" alt="Alt Text" width="450" height="200"> 
 
 ### 7. Logging and Reporting:
 Logging and reporting are integral parts of the program. The logging library is used to log various events and messages throughout the software. Log messages are written to a log file named **"process_manager.log"** and can be accessed using the "Log Access" menu option. The program allows users to view the log contents, which can be useful for monitoring threads and processes as well as viewing the inner workings of the threading processes and message-passing functions.
@@ -66,17 +66,37 @@ Of these two methods, the safest way to test this code out for yourself is throu
 ## Process Manager Feature Testing:
 ### 1. Testing Process Creation:
 
+
+
 ### 2. Testing Process Management:
+
+
 
 ### 3. Testing Thread Support:
 
+
+
 ### 4. Testing Inter-Process Communication (IPC):
+The following shows various versions of the process creation using pipes to create processes from external .py files:
+
+Using default.py to create a process: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using other_process.py to create a process:
+<img src="readme_images/472_image_10.png" alt="Alt Text" width="450" height="200"> <img src="readme_images/472_image_11.png" alt="Alt Text" width="450" height="200">
+
+Using build-in sleep function simulating work: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using a file name that does not exist:
+<img src="readme_images/472_image_12.png" alt="Alt Text" width="450" height="200"> <img src="readme_images/472_image_13.png" alt="Alt Text" width="450" height="200">
 
 ### 5. Testing Process Synchronization:
 
+
+
 ### 6. Testing Command-Line Interface (CLI):
+The following shows the command-line interface right after the Process_Manager.py file is invoked with the **'python Process_Manager.py --begin'** command:
+
+<img src="readme_images/472_image_1.png" alt="Alt Text" width="450" height="200">
 
 ### 7. Testing Logging and Reporting:
+The following shows the CLI menu option for showing the log file contents:
 
+<img src="readme_images/472_image_14.png" alt="Alt Text" width="450" height="200">
 
 ## Project Results:
