@@ -66,15 +66,24 @@ Of these two methods, the safest way to test this code out for yourself is throu
 ## Process Manager Feature Testing:
 ### 1. Testing Process Creation:
 
+The following shows the default creation of a process without threading:
 
+<img src="readme_images/472_image_2.png" alt="Alt Text" width="450" height="200">
 
 ### 2. Testing Process Management:
+The following showcases the various functions of the management of processes from the 'Manage' menu option:
 
+The following shows the listing of processes:
 
+<img src="readme_images/472_image_3.png" alt="Alt Text" width="450" height="200">
 
-### 3. Testing Thread Support:
+The following shows the viewing of the created process:
 
+<img src="readme_images/472_image_4.png" alt="Alt Text" width="450" height="350">
 
+The following shows the termination attempt of a registered process:
+
+<img src="readme_images/472_image_5.png" alt="Alt Text" width="450" height="350">
 
 ### 4. Testing Inter-Process Communication (IPC):
 The following shows various versions of the process creation using pipes to create processes from external .py files:
@@ -85,9 +94,22 @@ Using default.py to create a process: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Using build-in sleep function simulating work: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using a file name that does not exist:
 <img src="readme_images/472_image_12.png" alt="Alt Text" width="450" height="200"> <img src="readme_images/472_image_13.png" alt="Alt Text" width="450" height="200">
 
-### 5. Testing Process Synchronization:
+The following simulates IPC functions with respect to message passing:
 
+<img src="readme_images/472_image_8.png" alt="Alt Text" width="450" height="200">
 
+Logger output showing the inner working of the message pass:
+
+<img src="readme_images/472_image_9.png" alt="Alt Text" width="450" height="100">
+
+### 5. Testing Thread Support and Process Synchronization:
+The following showcases the process synchronization between threads whenever a process is made with the flag to use threads found in the 'Threads' menu select and in the 'Create Other' menu select:
+
+<img src="readme_images/472_image_6.png" alt="Alt Text" width="450" height="200">
+
+Logger output showing the inner working of the process synchronization:
+
+<img src="readme_images/472_image_7.png" alt="Alt Text" width="300" height="500">
 
 ### 6. Testing Command-Line Interface (CLI):
 The following shows the command-line interface right after the Process_Manager.py file is invoked with the **'python Process_Manager.py --begin'** command:
