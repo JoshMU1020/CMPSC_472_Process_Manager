@@ -97,6 +97,6 @@ The following shows the command-line interface right after the Process_Manager.p
 ### 7. Testing Logging and Reporting:
 The following shows the CLI menu option for showing the log file contents:
 
-<img src="readme_images/472_image_14.png" alt="Alt Text" width="450" height="200">
+<img src="readme_images/472_image_14.png" alt="Alt Text" width="450" height="500">
 
 ## Project Results:
