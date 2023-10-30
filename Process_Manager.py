@@ -15,10 +15,8 @@ class ProcessManager:
         self.processes = []
         self.process_pids = []
         self.threads = []
-
         self.queue = multiprocessing.Queue()
         self.thread_message_queue = multiprocessing.Queue()
-
         self.BUFFER_SIZE = 5
         self.buffer = []
         self.buffer2 = []
@@ -27,7 +25,7 @@ class ProcessManager:
         self.data = threading.Semaphore(0)
         self.total_items = 0
 
-    def worker_function(self, interp):
+    def worker_function(self, interp):  # Function to simulaye work done by created processes.
         if interp is None:
             logging.info("Creating process from base work function")
             time.sleep(5)
@@ -52,9 +50,9 @@ class ProcessManager:
             return
         return
 
-    def create_and_start_process(self, uses_t, interp_path):
+    def create_and_start_process(self, uses_t, interp_path):  # Function to create and initiate processess using either external subprocesses or basic sleep work.
         logging.info("Creating new process...")
-        self.total_items = random.randint(2, 5) * 4  # Randomly generate the number of data items
+        self.total_items = random.randint(2, 5) * 4  # Randomly generate the number of data items to be used if the process uses threading
 
         if not uses_t:
             logging.info("Process running without threading")
@@ -63,21 +61,19 @@ class ProcessManager:
             logging.info("Process running with threading")
             new_process_instance = multiprocessing.Process(target=self.synchronize_threads)
 
-        new_process_instance.start()
+        new_process_instance.start()  # begin process
 
-        # Get the process PID before starting it
         process_pid = new_process_instance.pid
 
         self.process_pids.append(int(process_pid))
-        #logging.info("Updated list of ran process ids\n", self.process_pids)
         self.processes.append(new_process_instance)
 
         logging.info(f"Process created with PID: {process_pid}")
 
-        self.queue.put(f"Data from Process {process_pid}")  # Add data to the IPC queue
+        self.queue.put(f"Data from Process {process_pid}") 
         return new_process_instance
 
-    def get_process_info_by_pid(self, target_pidi):
+    def get_process_info_by_pid(self, target_pidi):  # Function to return information about the status of a process based on the given PID
         try:
             process = psutil.Process(target_pidi)
             if process.is_running():
@@ -94,7 +90,7 @@ class ProcessManager:
                 logging.info(f"Process {target_pidi} does not exist.")
                 return f"Process {target_pidi} does not exist."
 
-    def process_management_list(self):
+    def process_management_list(self):  # Function to list currently running processess
         logging.info(f"Process list of ran/running processes.")
         process_info_list = []
         for p_id in self.processes:
@@ -110,7 +106,7 @@ class ProcessManager:
                 logging.error(f"Process with PID {p_id.pid} not found.")
         return process_info_list
 
-    def terminate_process(self, targeted_pid):
+    def terminate_process(self, targeted_pid):  # Function to end a processes manually based on their given PID
         logging.info(f"Attempting to delete process with PID: {targeted_pid}")
         for process in self.processes:
             if int(process.pid) == int(targeted_pid):
@@ -131,7 +127,7 @@ class ProcessManager:
                     logging.info(f"Process {targeted_pid} not found in the list of processes. Either it does not exist or it was completed")
                     return f"Process {targeted_pid} not found in the list of processes. Either it does not exist or it was completed"
 
-    def terminate_all(self):
+    def terminate_all(self):  # Function to terminate all processes that are still runing from the created list of still running processess
         logging.info("Attempting to terminate all processes")
         for process in self.processes:
             if process.is_alive():
@@ -143,7 +139,7 @@ class ProcessManager:
                 logging.info(f"Process {process.pid} is already completed.")
         return
 
-    def synchronize_threads(self):
+    def synchronize_threads(self):  # Function to initilize threading synchronize simulation
         logging.info("Synchronizing Threads")
         producers = [
             threading.Thread(target=self.producer, args=(self.buffer, self.mutex, self.empty, self.data, 1, 100, 1))
@@ -164,7 +160,7 @@ class ProcessManager:
         for consumer_thread in consumers:
             consumer_thread.join()
 
-    def producer(self, buffer, mutex, empty, data, min_value, max_value, pro_id):
+    def producer(self, buffer, mutex, empty, data, min_value, max_value, pro_id):  # Function to create a producer thread for thread synchronize
         logging.info("Creating producer thread...")
         for i in range(self.total_items):
             item = random.randint(min_value, max_value)
@@ -178,7 +174,7 @@ class ProcessManager:
             data.release()
             time.sleep(random.uniform(0.1, 0.5))
 
-    def consumer(self, buffer, mutex, empty, data, con_id):
+    def consumer(self, buffer, mutex, empty, data, con_id):  # Function to create a consumer thread for thread synchronize
         logging.info("Creating consumer thread...")
         for i in range(self.total_items // 2):
             logging.info(f"Consumer {con_id} aquiring resources...")
@@ -192,18 +188,18 @@ class ProcessManager:
             empty.release()
             time.sleep(random.uniform(0.1, 0.5))
 
-    def send_message(self, message):
+    def send_message(self, message):  # Function to send out messages to another thread to comunication queue
         self.thread_message_queue.put(message)
         logging.info(f"Thread {threading.current_thread().ident} sent a message: {message}")
 
-    def receive_message(self):
+    def receive_message(self):  # Function to receive messages to from another thread from comunication queue
         try:
             message = self.thread_message_queue.get_nowait()
             logging.info(f"Thread {threading.current_thread().ident} received a message: {message}")
         except queue.Empty:
             logging.info(f"Thread {threading.current_thread().ident} received no messages.")
 
-    def ipc_operations(self):  # Start a few threads to simulate sending and receiving messages
+    def ipc_operations(self):  # Function to tart some threads to simulate sending and receiving messages
         logging.info("Displaying IPC Operations Menu...")
         print("Simulating Message Passing between Threads")
         ipc_message = str(input("Enter the message you wish to have the threads communicate: "))
@@ -218,7 +214,7 @@ class ProcessManager:
         thread1.join()
         thread2.join()
 
-    def display_log_contents(self, log_file):
+    def display_log_contents(self, log_file):  # Function to display log information
         logging.info("Attempting to display logger contents...")
         try:
             with open(log_file, 'r') as file:
